@@ -123,12 +123,12 @@ export const STARTER_ITEMS = [
     description: 'Thymosin Beta-4. Promotes tissue repair, reduces inflammation, improves flexibility and mobility. Works synergistically with BPC-157 for healing. Expect improved recovery and reduced stiffness within 1-2 weeks.',
     dose: '500',
     unit: 'mcg',
-    frequency: 'daily',
-    days: [],
+    frequency: 'weekly',
+    days: [0, 3], // Sun & Wed
     time: '08:00',
     vialStrength: '10',
     bacWater: '3',
-    notes: 'SubQ injection. Start at 500mcg daily, can increase to 750-1000mcg every 2 weeks. Cycle: 8-12 weeks on, 4 weeks off.',
+    notes: 'SubQ injection. 2x/week (Sun & Wed) for loading phase (4-6 weeks), then 1x/week maintenance. Cycle: 8-12 weeks on, 4 weeks off.',
   },
   {
     name: 'MOTS-C',
