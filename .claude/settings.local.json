@@ -17,7 +17,8 @@
       "Bash(cd \"C:/Projects/peptide schedule\" && gh repo create dosetrack --public --source=. --push 2>&1)",
       "Bash(gh repo:*)",
       "Bash(gh run:*)",
-      "WebFetch(domain:mitovail.net)"
+      "WebFetch(domain:mitovail.net)",
+      "WebSearch"
     ]
   }
 }
