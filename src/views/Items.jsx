@@ -27,8 +27,13 @@ function Items({ items, onEdit, onAdd }) {
                 onClick={() => onEdit(item)}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <div className="item-dot" style={{ background: catColor(item.category) }} />
-                  <span style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</span>
+                  <div className="item-dot" style={{ background: item.paused ? 'var(--text2)' : catColor(item.category) }} />
+                  <span style={{ fontWeight: 600, fontSize: 15, opacity: item.paused ? 0.5 : 1 }}>{item.name}</span>
+                  {item.paused && (
+                    <span className="badge" style={{ background: 'var(--surface2)', color: 'var(--text2)', fontSize: 10 }}>
+                      PAUSED
+                    </span>
+                  )}
                 </div>
                 {item.description && (
                   <div style={{ fontSize: 13, color: 'var(--text2)', paddingLeft: 22, marginBottom: 4 }}>

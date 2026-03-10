@@ -13,6 +13,7 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
   const [description, setDescription] = useState(item.description || '')
   const [vialStrength, setVialStrength] = useState(item.vialStrength || '')
   const [bacWater, setBacWater] = useState(item.bacWater || '')
+  const [paused, setPaused] = useState(item.paused || false)
   const [notes, setNotes] = useState(item.notes || '')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -33,6 +34,7 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
       time,
       vialStrength,
       bacWater,
+      paused,
       notes: notes.trim(),
       startDate: item.startDate || formatDate(new Date()),
     })
@@ -61,6 +63,17 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
               placeholder="e.g. BPC-157, Vitamin D, Testosterone..."
               autoFocus
             />
+          </div>
+
+          <div className="form-group">
+            <button
+              type="button"
+              className={`status-toggle ${paused ? 'paused' : 'active'}`}
+              onClick={() => setPaused(!paused)}
+            >
+              <span className="status-dot" />
+              {paused ? 'Paused — won\'t show on schedule' : 'Active — showing on schedule'}
+            </button>
           </div>
 
           <div className="form-group">
@@ -220,6 +233,40 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
             </div>
           )}
         </form>
+
+        <style>{`
+          .status-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+          }
+          .status-toggle.active {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--green);
+          }
+          .status-toggle.paused {
+            background: var(--surface2);
+            color: var(--text2);
+          }
+          .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+          }
+          .status-toggle.active .status-dot {
+            background: var(--green);
+          }
+          .status-toggle.paused .status-dot {
+            background: var(--text2);
+          }
+        `}</style>
       </div>
     </div>
   )

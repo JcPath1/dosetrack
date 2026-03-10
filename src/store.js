@@ -57,6 +57,7 @@ export const FREQUENCIES = [
 export const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export function isDueOnDate(item, dateStr) {
+  if (item.paused) return false
   const d = parseDate(dateStr)
   const day = d.getDay()
 
@@ -141,6 +142,7 @@ export const STARTER_ITEMS = [
     time: '08:00',
     vialStrength: '10',
     bacWater: '3',
+    paused: true,
     notes: 'SubQ injection. Start 200mcg daily, increase by 200mcg every 2 weeks. Target dose ~1mg/day (based on 220lbs). Best on training days.',
   },
   {
