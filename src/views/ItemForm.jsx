@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CATEGORIES, FREQUENCIES, DAYS, createId, formatDate } from '../store'
+import { CATEGORIES, FREQUENCIES, DAYS, createId, formatDate, calcSyringe } from '../store'
 
 function ItemForm({ item, onSave, onDelete, onClose }) {
   const isNew = !item.id
@@ -11,8 +11,12 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
   const [days, setDays] = useState(item.days || [])
   const [time, setTime] = useState(item.time || '')
   const [description, setDescription] = useState(item.description || '')
+  const [vialStrength, setVialStrength] = useState(item.vialStrength || '')
+  const [bacWater, setBacWater] = useState(item.bacWater || '')
   const [notes, setNotes] = useState(item.notes || '')
   const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const result = calcSyringe(dose, unit, vialStrength, bacWater)
 
   function handleSave(e) {
     e.preventDefault()
@@ -27,6 +31,8 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
       frequency,
       days: frequency !== 'daily' ? days : [],
       time,
+      vialStrength,
+      bacWater,
       notes: notes.trim(),
       startDate: item.startDate || formatDate(new Date()),
     })
@@ -100,6 +106,41 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
               </select>
             </div>
           </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">Vial Strength (mg)</label>
+              <input
+                type="number"
+                step="any"
+                value={vialStrength}
+                onChange={e => setVialStrength(e.target.value)}
+                placeholder="10"
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label">BAC Water (mL)</label>
+              <input
+                type="number"
+                step="any"
+                value={bacWater}
+                onChange={e => setBacWater(e.target.value)}
+                placeholder="3"
+              />
+            </div>
+          </div>
+
+          {result && (
+            <div className="form-calc-preview card" style={{ marginBottom: 16, background: 'var(--bg)', border: '1px solid var(--accent)33' }}>
+              <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Syringe Preview
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Draw to <strong style={{ color: 'var(--accent)' }}>{result.syringeUnits} units</strong></span>
+                <span style={{ color: 'var(--text2)', fontSize: 13 }}>{result.dosesPerVial} doses/vial</span>
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label">Frequency</label>

@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
-import { isDueOnDate, CATEGORIES, formatDate, parseDate } from '../store'
+import { isDueOnDate, CATEGORIES, formatDate, parseDate, calcSyringe } from '../store'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function Today({ items, logs, date, onToggle, onDateChange }) {
+function Today({ items, logs, date, onToggle, onDateChange, onCalc }) {
   const d = parseDate(date)
   const todayStr = formatDate(new Date())
   const isToday = date === todayStr
@@ -60,39 +60,56 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
         <div className="dose-list">
           {dueItems.map(item => {
             const done = !!logs[`${item.id}:${date}`]
+            const syringe = calcSyringe(item.dose, item.unit, item.vialStrength, item.bacWater)
             return (
-              <button
-                key={item.id}
-                className={`dose-card card ${done ? 'done' : ''}`}
-                onClick={() => onToggle(item.id, date)}
-              >
-                <div className="dose-check">
-                  <div className={`check-circle ${done ? 'checked' : ''}`}
-                    style={{ borderColor: done ? 'var(--green)' : catColor(item.category) }}
+              <div key={item.id} className={`dose-card card ${done ? 'done' : ''}`}>
+                <button
+                  className="dose-main"
+                  onClick={() => onToggle(item.id, date)}
+                >
+                  <div className="dose-check">
+                    <div className={`check-circle ${done ? 'checked' : ''}`}
+                      style={{ borderColor: done ? 'var(--green)' : catColor(item.category) }}
+                    >
+                      {done && <span>&#10003;</span>}
+                    </div>
+                  </div>
+                  <div className="dose-info">
+                    <div className="dose-name">{item.name}</div>
+                    <div className="dose-detail">
+                      <span className="badge" style={{
+                        background: catColor(item.category) + '22',
+                        color: catColor(item.category)
+                      }}>
+                        {item.category}
+                      </span>
+                      {item.dose && (
+                        <span className="dose-amount">{item.dose} {item.unit || ''}</span>
+                      )}
+                      {item.time && (
+                        <span className="dose-time">{item.time}</span>
+                      )}
+                    </div>
+                    {syringe && (
+                      <div className="syringe-info">
+                        Draw to <strong>{syringe.syringeUnits} units</strong>
+                        <span className="syringe-detail"> ({syringe.mlToDraw} mL)</span>
+                      </div>
+                    )}
+                    {item.description && <div className="dose-desc">{item.description}</div>}
+                    {item.notes && <div className="dose-notes">{item.notes}</div>}
+                  </div>
+                </button>
+                {syringe && (
+                  <button
+                    className="calc-link"
+                    onClick={(e) => { e.stopPropagation(); onCalc(item) }}
+                    title="Open calculator"
                   >
-                    {done && <span>&#10003;</span>}
-                  </div>
-                </div>
-                <div className="dose-info">
-                  <div className="dose-name">{item.name}</div>
-                  <div className="dose-detail">
-                    <span className="badge" style={{
-                      background: catColor(item.category) + '22',
-                      color: catColor(item.category)
-                    }}>
-                      {item.category}
-                    </span>
-                    {item.dose && (
-                      <span className="dose-amount">{item.dose} {item.unit || ''}</span>
-                    )}
-                    {item.time && (
-                      <span className="dose-time">{item.time}</span>
-                    )}
-                  </div>
-                  {item.description && <div className="dose-desc">{item.description}</div>}
-                  {item.notes && <div className="dose-notes">{item.notes}</div>}
-                </div>
-              </button>
+                    ◎
+                  </button>
+                )}
+              </div>
             )
           })}
         </div>
@@ -146,13 +163,28 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
         .dose-card {
           display: flex;
           align-items: flex-start;
-          gap: 12px;
+          gap: 0;
           width: 100%;
           text-align: left;
           transition: opacity 0.2s;
+          position: relative;
         }
-        .dose-card:active { opacity: 0.8; }
         .dose-card.done { opacity: 0.55; }
+        .dose-main {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          flex: 1;
+          background: none;
+          border: none;
+          color: inherit;
+          font: inherit;
+          text-align: left;
+          padding: 0;
+          cursor: pointer;
+          min-width: 0;
+        }
+        .dose-main:active { opacity: 0.8; }
         .check-circle {
           width: 28px;
           height: 28px;
@@ -186,6 +218,15 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
           font-size: 13px;
           color: var(--text2);
         }
+        .syringe-info {
+          font-size: 13px;
+          color: var(--accent);
+          margin-top: 4px;
+        }
+        .syringe-detail {
+          color: var(--text2);
+          font-weight: 400;
+        }
         .dose-desc {
           font-size: 12px;
           color: var(--text2);
@@ -197,6 +238,17 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
           margin-top: 2px;
           font-style: italic;
         }
+        .calc-link {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          font-size: 18px;
+          color: var(--text2);
+          padding: 4px;
+          border-radius: 4px;
+          line-height: 1;
+        }
+        .calc-link:active { color: var(--accent); }
       `}</style>
     </div>
   )

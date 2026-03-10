@@ -1,23 +1,33 @@
 import { useState, useEffect, useCallback } from 'react'
-import { loadItems, saveItems, loadLogs, saveLogs, formatDate } from './store'
+import { loadItems, saveItems, loadLogs, saveLogs, formatDate, seedStarterItems } from './store'
+import PinLock, { hasPin, isUnlocked, lockApp } from './views/PinLock'
 import Today from './views/Today'
 import Calendar from './views/Calendar'
 import Items from './views/Items'
 import ItemForm from './views/ItemForm'
+import Calculator from './views/Calculator'
 import './App.css'
 
 const TABS = [
   { id: 'today', label: 'Today', icon: '○' },
   { id: 'calendar', label: 'Calendar', icon: '▦' },
-  { id: 'items', label: 'My Items', icon: '≡' },
+  { id: 'calc', label: 'Calc', icon: '◎' },
+  { id: 'items', label: 'Items', icon: '≡' },
 ]
 
 function App() {
+  const [unlocked, setUnlocked] = useState(() => !hasPin() || isUnlocked())
   const [tab, setTab] = useState('today')
-  const [items, setItems] = useState(loadItems)
+  const [items, setItems] = useState(() => {
+    const existing = loadItems()
+    if (existing.length > 0) return existing
+    const seeded = seedStarterItems()
+    return seeded || existing
+  })
   const [logs, setLogs] = useState(loadLogs)
   const [editingItem, setEditingItem] = useState(null)
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()))
+  const [calcItem, setCalcItem] = useState(null)
 
   useEffect(() => { saveItems(items) }, [items])
   useEffect(() => { saveLogs(logs) }, [logs])
@@ -60,6 +70,11 @@ function App() {
     setEditingItem(null)
   }, [])
 
+  // Show PIN lock if not unlocked
+  if (!unlocked) {
+    return <PinLock onUnlock={() => setUnlocked(true)} />
+  }
+
   if (editingItem !== null) {
     return (
       <ItemForm
@@ -81,6 +96,7 @@ function App() {
             date={selectedDate}
             onToggle={toggleLog}
             onDateChange={setSelectedDate}
+            onCalc={(item) => { setCalcItem(item); setTab('calc') }}
           />
         )}
         {tab === 'calendar' && (
@@ -88,6 +104,13 @@ function App() {
             items={items}
             logs={logs}
             onSelectDate={(d) => { setSelectedDate(d); setTab('today') }}
+          />
+        )}
+        {tab === 'calc' && (
+          <Calculator
+            items={items}
+            preselect={calcItem}
+            onClearPreselect={() => setCalcItem(null)}
           />
         )}
         {tab === 'items' && (

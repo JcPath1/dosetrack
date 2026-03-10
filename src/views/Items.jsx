@@ -1,4 +1,4 @@
-import { CATEGORIES, FREQUENCIES } from '../store'
+import { CATEGORIES, FREQUENCIES, calcSyringe } from '../store'
 
 function Items({ items, onEdit, onAdd }) {
   const catColor = (cat) => CATEGORIES.find(c => c.value === cat)?.color || 'var(--text2)'
@@ -18,37 +18,51 @@ function Items({ items, onEdit, onAdd }) {
         </div>
       ) : (
         <div style={{ paddingBottom: 16 }}>
-          {items.map(item => (
-            <button
-              key={item.id}
-              className="card item-card"
-              onClick={() => onEdit(item)}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <div className="item-dot" style={{ background: catColor(item.category) }} />
-                <span style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</span>
-              </div>
-              {item.description && (
-                <div style={{ fontSize: 13, color: 'var(--text2)', paddingLeft: 22, marginBottom: 4 }}>
-                  {item.description}
+          {items.map(item => {
+            const syringe = calcSyringe(item.dose, item.unit, item.vialStrength, item.bacWater)
+            return (
+              <button
+                key={item.id}
+                className="card item-card"
+                onClick={() => onEdit(item)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <div className="item-dot" style={{ background: catColor(item.category) }} />
+                  <span style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</span>
                 </div>
-              )}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingLeft: 22 }}>
-                <span className="badge" style={{
-                  background: catColor(item.category) + '22',
-                  color: catColor(item.category)
-                }}>
-                  {item.category}
-                </span>
-                <span style={{ fontSize: 13, color: 'var(--text2)' }}>
-                  {item.dose} {item.unit || ''}
-                </span>
-                <span style={{ fontSize: 13, color: 'var(--text2)' }}>
-                  {freqLabel(item.frequency)}
-                </span>
-              </div>
-            </button>
-          ))}
+                {item.description && (
+                  <div style={{ fontSize: 13, color: 'var(--text2)', paddingLeft: 22, marginBottom: 4 }}>
+                    {item.description}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingLeft: 22 }}>
+                  <span className="badge" style={{
+                    background: catColor(item.category) + '22',
+                    color: catColor(item.category)
+                  }}>
+                    {item.category}
+                  </span>
+                  <span style={{ fontSize: 13, color: 'var(--text2)' }}>
+                    {item.dose} {item.unit || ''}
+                  </span>
+                  <span style={{ fontSize: 13, color: 'var(--text2)' }}>
+                    {freqLabel(item.frequency)}
+                  </span>
+                  {syringe && (
+                    <span style={{ fontSize: 13, color: 'var(--accent)' }}>
+                      {syringe.syringeUnits} units
+                    </span>
+                  )}
+                </div>
+                {item.vialStrength && (
+                  <div style={{ fontSize: 12, color: 'var(--text2)', paddingLeft: 22, marginTop: 4 }}>
+                    Vial: {item.vialStrength}mg / {item.bacWater}mL BAC
+                    {syringe && <span> / {syringe.dosesPerVial} doses per vial</span>}
+                  </div>
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
 

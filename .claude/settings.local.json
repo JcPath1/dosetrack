@@ -13,7 +13,11 @@
       "Bash(npm install:*)",
       "Bash(cd \"C:/Projects/peptide schedule\" && netlify deploy --prod --dir=dist 2>&1)",
       "Bash(netlify status:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && gh repo create dosetrack --public --source=. --push 2>&1)",
+      "Bash(gh repo:*)",
+      "Bash(gh run:*)",
+      "WebFetch(domain:mitovail.net)"
     ]
   }
 }
