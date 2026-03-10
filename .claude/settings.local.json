@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Projects/peptide schedule\" && npm create vite@latest . -- --template react 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && echo \"y\" | npm create vite@latest . -- --template react 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && npx --yes create-vite@latest temp-app --template react 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && cp -r temp-app/* temp-app/.* . 2>/dev/null; rm -rf temp-app && ls -la)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && npm install 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && npm install vite-plugin-pwa 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && npm install canvas --save-dev 2>&1 | tail -5)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && node -e \"\nconst { createCanvas } = require\\('canvas'\\);\nconst fs = require\\('fs'\\);\n\nfunction makeIcon\\(size, outPath\\) {\n  const c = createCanvas\\(size, size\\);\n  const ctx = c.getContext\\('2d'\\);\n  const r = size * 0.2;\n\n  // Background\n  ctx.fillStyle = '#0f172a';\n  ctx.beginPath\\(\\);\n  ctx.moveTo\\(r, 0\\);\n  ctx.lineTo\\(size - r, 0\\);\n  ctx.quadraticCurveTo\\(size, 0, size, r\\);\n  ctx.lineTo\\(size, size - r\\);\n  ctx.quadraticCurveTo\\(size, size, size - r, size\\);\n  ctx.lineTo\\(r, size\\);\n  ctx.quadraticCurveTo\\(0, size, 0, size - r\\);\n  ctx.lineTo\\(0, r\\);\n  ctx.quadraticCurveTo\\(0, 0, r, 0\\);\n  ctx.fill\\(\\);\n\n  const cx = size / 2;\n  // Clock circle\n  ctx.strokeStyle = '#38bdf8';\n  ctx.lineWidth = size * 0.03;\n  ctx.beginPath\\(\\);\n  ctx.arc\\(cx, size * 0.38, size * 0.16, 0, Math.PI * 2\\);\n  ctx.stroke\\(\\);\n\n  // Clock hands\n  ctx.lineCap = 'round';\n  ctx.beginPath\\(\\);\n  ctx.moveTo\\(cx, size * 0.22\\);\n  ctx.lineTo\\(cx, size * 0.38\\);\n  ctx.stroke\\(\\);\n  ctx.beginPath\\(\\);\n  ctx.moveTo\\(cx, size * 0.38\\);\n  ctx.lineTo\\(cx + size * 0.1, size * 0.34\\);\n  ctx.stroke\\(\\);\n\n  // Pills\n  ctx.fillStyle = '#34d399';\n  const pw = size * 0.4, ph = size * 0.06, pr = ph / 2;\n  ctx.beginPath\\(\\);\n  ctx.roundRect\\(cx - pw/2, size * 0.62, pw, ph, pr\\);\n  ctx.fill\\(\\);\n\n  ctx.globalAlpha = 0.6;\n  const pw2 = size * 0.28;\n  ctx.beginPath\\(\\);\n  ctx.roundRect\\(cx - pw2/2, size * 0.72, pw2, ph, pr\\);\n  ctx.fill\\(\\);\n\n  fs.writeFileSync\\(outPath, c.toBuffer\\('image/png'\\)\\);\n}\n\nmakeIcon\\(192, 'public/icon-192.png'\\);\nmakeIcon\\(512, 'public/icon-512.png'\\);\nconsole.log\\('Icons created'\\);\n\" 2>&1)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && npm run build 2>&1)",
+      "Bash(npm install:*)",
+      "Bash(cd \"C:/Projects/peptide schedule\" && netlify deploy --prod --dir=dist 2>&1)",
+      "Bash(netlify status:*)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}

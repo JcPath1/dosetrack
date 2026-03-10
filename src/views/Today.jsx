@@ -1,0 +1,199 @@
+import { useMemo } from 'react'
+import { isDueOnDate, CATEGORIES, formatDate, parseDate } from '../store'
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function Today({ items, logs, date, onToggle, onDateChange }) {
+  const d = parseDate(date)
+  const todayStr = formatDate(new Date())
+  const isToday = date === todayStr
+
+  const dueItems = useMemo(() =>
+    items.filter(item => isDueOnDate(item, date)),
+    [items, date]
+  )
+
+  const doneCount = dueItems.filter(item => logs[`${item.id}:${date}`]).length
+
+  function shiftDate(offset) {
+    const next = parseDate(date)
+    next.setDate(next.getDate() + offset)
+    onDateChange(formatDate(next))
+  }
+
+  const catColor = (cat) => CATEGORIES.find(c => c.value === cat)?.color || 'var(--text2)'
+
+  return (
+    <div>
+      <div className="top-bar">
+        <button className="nav-arrow" onClick={() => shiftDate(-1)}>&#8249;</button>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 18, fontWeight: 700 }}>
+            {isToday ? 'Today' : DAY_NAMES[d.getDay()]}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text2)' }}>
+            {MONTH_NAMES[d.getMonth()]} {d.getDate()}, {d.getFullYear()}
+          </div>
+        </div>
+        <button className="nav-arrow" onClick={() => shiftDate(1)}>&#8250;</button>
+      </div>
+
+      {dueItems.length > 0 && (
+        <div className="progress-bar-wrap">
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: `${dueItems.length ? (doneCount / dueItems.length) * 100 : 0}%` }}
+            />
+          </div>
+          <span className="progress-text">{doneCount}/{dueItems.length}</span>
+        </div>
+      )}
+
+      {dueItems.length === 0 ? (
+        <div className="empty-state">
+          <div style={{ fontSize: 40 }}>&#10003;</div>
+          <p>Nothing scheduled for this day</p>
+        </div>
+      ) : (
+        <div className="dose-list">
+          {dueItems.map(item => {
+            const done = !!logs[`${item.id}:${date}`]
+            return (
+              <button
+                key={item.id}
+                className={`dose-card card ${done ? 'done' : ''}`}
+                onClick={() => onToggle(item.id, date)}
+              >
+                <div className="dose-check">
+                  <div className={`check-circle ${done ? 'checked' : ''}`}
+                    style={{ borderColor: done ? 'var(--green)' : catColor(item.category) }}
+                  >
+                    {done && <span>&#10003;</span>}
+                  </div>
+                </div>
+                <div className="dose-info">
+                  <div className="dose-name">{item.name}</div>
+                  <div className="dose-detail">
+                    <span className="badge" style={{
+                      background: catColor(item.category) + '22',
+                      color: catColor(item.category)
+                    }}>
+                      {item.category}
+                    </span>
+                    {item.dose && (
+                      <span className="dose-amount">{item.dose} {item.unit || ''}</span>
+                    )}
+                    {item.time && (
+                      <span className="dose-time">{item.time}</span>
+                    )}
+                  </div>
+                  {item.notes && <div className="dose-notes">{item.notes}</div>}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {!isToday && (
+        <button
+          className="btn btn-ghost btn-block"
+          style={{ marginTop: 16, marginBottom: 16 }}
+          onClick={() => onDateChange(todayStr)}
+        >
+          Back to Today
+        </button>
+      )}
+
+      <style>{`
+        .nav-arrow {
+          font-size: 28px;
+          padding: 8px 14px;
+          color: var(--text2);
+          border-radius: 8px;
+        }
+        .nav-arrow:active { background: var(--surface); }
+        .progress-bar-wrap {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .progress-bar {
+          flex: 1;
+          height: 6px;
+          background: var(--surface2);
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        .progress-fill {
+          height: 100%;
+          background: var(--green);
+          border-radius: 3px;
+          transition: width 0.3s ease;
+        }
+        .progress-text {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text2);
+          min-width: 36px;
+          text-align: right;
+        }
+        .dose-list { padding-bottom: 16px; }
+        .dose-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          width: 100%;
+          text-align: left;
+          transition: opacity 0.2s;
+        }
+        .dose-card:active { opacity: 0.8; }
+        .dose-card.done { opacity: 0.55; }
+        .check-circle {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          border: 2.5px solid;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          color: var(--green);
+          flex-shrink: 0;
+          transition: all 0.2s;
+        }
+        .check-circle.checked {
+          background: var(--green);
+          color: var(--bg);
+        }
+        .dose-info { flex: 1; min-width: 0; }
+        .dose-name {
+          font-weight: 600;
+          font-size: 15px;
+          margin-bottom: 4px;
+        }
+        .dose-detail {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .dose-amount, .dose-time {
+          font-size: 13px;
+          color: var(--text2);
+        }
+        .dose-notes {
+          font-size: 12px;
+          color: var(--text2);
+          margin-top: 4px;
+          font-style: italic;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default Today
