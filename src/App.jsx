@@ -16,7 +16,7 @@ const TABS = [
 ]
 
 function App() {
-  const [unlocked, setUnlocked] = useState(() => !hasPin() || isUnlocked())
+  const [unlocked, setUnlocked] = useState(() => hasPin() && isUnlocked())
   const [tab, setTab] = useState('today')
   const [items, setItems] = useState(() => {
     const existing = loadItems()
