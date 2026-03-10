@@ -10,6 +10,7 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
   const [frequency, setFrequency] = useState(item.frequency || 'daily')
   const [days, setDays] = useState(item.days || [])
   const [time, setTime] = useState(item.time || '')
+  const [description, setDescription] = useState(item.description || '')
   const [notes, setNotes] = useState(item.notes || '')
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -20,6 +21,7 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
       id: item.id || createId(),
       name: name.trim(),
       category,
+      description: description.trim(),
       dose,
       unit,
       frequency,
@@ -52,6 +54,16 @@ function ItemForm({ item, onSave, onDelete, onClose }) {
               onChange={e => setName(e.target.value)}
               placeholder="e.g. BPC-157, Vitamin D, Testosterone..."
               autoFocus
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="What is it used for? e.g. Joint healing, muscle recovery..."
             />
           </div>
 

@@ -28,6 +28,11 @@ function Items({ items, onEdit, onAdd }) {
                 <div className="item-dot" style={{ background: catColor(item.category) }} />
                 <span style={{ fontWeight: 600, fontSize: 15 }}>{item.name}</span>
               </div>
+              {item.description && (
+                <div style={{ fontSize: 13, color: 'var(--text2)', paddingLeft: 22, marginBottom: 4 }}>
+                  {item.description}
+                </div>
+              )}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingLeft: 22 }}>
                 <span className="badge" style={{
                   background: catColor(item.category) + '22',

@@ -89,6 +89,7 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
                       <span className="dose-time">{item.time}</span>
                     )}
                   </div>
+                  {item.description && <div className="dose-desc">{item.description}</div>}
                   {item.notes && <div className="dose-notes">{item.notes}</div>}
                 </div>
               </button>
@@ -185,10 +186,15 @@ function Today({ items, logs, date, onToggle, onDateChange }) {
           font-size: 13px;
           color: var(--text2);
         }
-        .dose-notes {
+        .dose-desc {
           font-size: 12px;
           color: var(--text2);
           margin-top: 4px;
+        }
+        .dose-notes {
+          font-size: 12px;
+          color: var(--text2);
+          margin-top: 2px;
           font-style: italic;
         }
       `}</style>
