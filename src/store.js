@@ -56,14 +56,18 @@ export const FREQUENCIES = [
 
 export const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-export function isDueOnDate(item, dateStr) {
+export function isDueOnDate(item, dateStr, logs) {
   if (item.paused) return false
   const d = parseDate(dateStr)
 
-  // Don't show as due before the item's start date
+  // Don't show as due before the item's start date, unless a log exists for that day
   if (item.startDate) {
     const start = parseDate(item.startDate)
-    if (d < start) return false
+    if (d < start) {
+      // If there's a log entry, the item was taken that day — still show it
+      if (logs && logs[`${item.id}:${dateStr}`]) return true
+      return false
+    }
   }
 
   const day = d.getDay()

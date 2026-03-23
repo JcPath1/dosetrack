@@ -19,7 +19,7 @@ function Calendar({ items, logs, onSelectDate }) {
     for (let i = 0; i < startDay; i++) days.push(null)
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = formatDate(new Date(year, month, d))
-      const due = items.filter(item => isDueOnDate(item, dateStr))
+      const due = items.filter(item => isDueOnDate(item, dateStr, logs))
       const done = due.filter(item => logs[`${item.id}:${dateStr}`])
       days.push({ day: d, dateStr, dueCount: due.length, doneCount: done.length, due })
     }

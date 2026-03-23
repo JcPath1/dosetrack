@@ -10,8 +10,8 @@ function Today({ items, logs, date, onToggle, onDateChange, onCalc }) {
   const isToday = date === todayStr
 
   const dueItems = useMemo(() =>
-    items.filter(item => isDueOnDate(item, date)),
-    [items, date]
+    items.filter(item => isDueOnDate(item, date, logs)),
+    [items, date, logs]
   )
 
   const doneCount = dueItems.filter(item => logs[`${item.id}:${date}`]).length
