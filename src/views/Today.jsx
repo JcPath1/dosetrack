@@ -4,7 +4,7 @@ import { isDueOnDate, CATEGORIES, formatDate, parseDate, calcSyringe } from '../
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-function Today({ items, logs, date, onToggle, onDateChange, onCalc }) {
+function Today({ items, logs, date, onToggle, onDateChange, onCalc, onExport }) {
   const d = parseDate(date)
   const todayStr = formatDate(new Date())
   const isToday = date === todayStr
@@ -122,6 +122,16 @@ function Today({ items, logs, date, onToggle, onDateChange, onCalc }) {
           onClick={() => onDateChange(todayStr)}
         >
           Back to Today
+        </button>
+      )}
+
+      {isToday && onExport && (
+        <button
+          className="btn btn-ghost btn-block"
+          style={{ marginTop: 16, marginBottom: 16, fontSize: 13, color: 'var(--text2)' }}
+          onClick={onExport}
+        >
+          Backup Data
         </button>
       )}
 

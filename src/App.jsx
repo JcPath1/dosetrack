@@ -144,6 +144,7 @@ function App() {
             onToggle={toggleLog}
             onDateChange={setSelectedDate}
             onCalc={(item) => { setCalcItem(item); setTab('calc') }}
+            onExport={handleExport}
           />
         )}
         {tab === 'calendar' && (
