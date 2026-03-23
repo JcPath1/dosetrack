@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { loadItems, saveItems, loadLogs, saveLogs, formatDate, seedStarterItems } from './store'
+import { loadItems, saveItems, loadLogs, saveLogs, formatDate, seedStarterItems, migrateV2 } from './store'
 import PinLock, { hasPin, isUnlocked, lockApp } from './views/PinLock'
 import Today from './views/Today'
 import Calendar from './views/Calendar'
@@ -19,12 +19,22 @@ function App() {
   const [unlocked, setUnlocked] = useState(() => hasPin() && isUnlocked())
   const [tab, setTab] = useState('today')
   const [items, setItems] = useState(() => {
-    const existing = loadItems()
-    if (existing.length > 0) return existing
-    const seeded = seedStarterItems()
-    return seeded || existing
+    let existing = loadItems()
+    if (existing.length === 0) {
+      existing = seedStarterItems() || existing
+    }
+    return existing
   })
   const [logs, setLogs] = useState(loadLogs)
+
+  // Run one-time migration to add new injectables + backfill historical logs
+  useEffect(() => {
+    const result = migrateV2(items, logs)
+    if (result) {
+      setItems(result.items)
+      setLogs(result.logs)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [editingItem, setEditingItem] = useState(null)
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()))
   const [calcItem, setCalcItem] = useState(null)

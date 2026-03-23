@@ -59,6 +59,13 @@ export const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 export function isDueOnDate(item, dateStr) {
   if (item.paused) return false
   const d = parseDate(dateStr)
+
+  // Don't show as due before the item's start date
+  if (item.startDate) {
+    const start = parseDate(item.startDate)
+    if (d < start) return false
+  }
+
   const day = d.getDay()
 
   if (item.frequency === 'daily') return true
@@ -182,4 +189,108 @@ export function seedStarterItems() {
   }))
   localStorage.setItem(SEEDED_KEY, 'true')
   return items
+}
+
+// --- Migration: add new injectable compounds (March 2026 protocol) ---
+const MIGRATION_KEY = 'dosetrack_migration'
+
+const V2_INJECTABLES = [
+  {
+    name: 'Retatrutide',
+    category: 'peptide',
+    description: 'Triple GLP-1/GIP/Glucagon agonist. Targets triglycerides, LDL, liver fat, and visceral fat. Up to 24% body weight reduction in trials.',
+    dose: '1',
+    unit: 'mg',
+    frequency: 'weekly',
+    days: [0], // Sunday
+    time: '08:00',
+    vialStrength: '10',
+    bacWater: '3',
+    startDate: '2026-03-19',
+    notes: 'SubQ abdomen, rotate site weekly. Wk 1-4: 1mg (30 units). Wk 5-8: 2mg (split 50+10). Wk 9-12: 4mg (use 1ml syringe).',
+    _backfill: ['2026-03-19'],
+  },
+  {
+    name: 'CJC-1295 + DAC',
+    category: 'peptide',
+    description: 'Long-acting GHRH analog. Sustained GH elevation for deep sleep, recovery, fat metabolism, and muscle preservation.',
+    dose: '1',
+    unit: 'mg',
+    frequency: 'weekly',
+    days: [1], // Monday
+    time: '',
+    vialStrength: '5',
+    bacWater: '3',
+    startDate: '2026-03-19',
+    notes: 'Split injection: 50 units + 10 units, two sites 1-2 inches apart, same day. Once weekly (budget). When budget allows, add Thursday dose.',
+    _backfill: ['2026-03-19'],
+  },
+  {
+    name: 'Ipamorelin',
+    category: 'peptide',
+    description: 'Selective GH secretagogue. Triggers natural GH pulses for deep sleep, fat loss, recovery, and anti-aging. Synergistic with CJC-1295.',
+    dose: '100',
+    unit: 'mcg',
+    frequency: 'daily',
+    days: [],
+    time: '22:00',
+    vialStrength: '10',
+    bacWater: '3',
+    startDate: '2026-03-19',
+    notes: 'BEDTIME, fasted 2+ hrs. Wk 1-2: 100mcg (3 units). Wk 3-4: 200mcg (6 units). Wk 5+: 300mcg (9 units).',
+    _backfill: ['2026-03-19', '2026-03-20', '2026-03-21', '2026-03-22'],
+  },
+  {
+    name: '5-Amino-1MQ',
+    category: 'peptide',
+    description: 'NNMT inhibitor. Blocks enzyme that wastes NAD+ and promotes fat storage. Boosts metabolism, energy, and fat burning at cellular level.',
+    dose: '0.5',
+    unit: 'mg',
+    frequency: 'daily',
+    days: [],
+    time: '08:00',
+    vialStrength: '50',
+    bacWater: '3',
+    startDate: '2026-03-19',
+    notes: 'SubQ morning, mild stinging normal. Amber vial — keep from light. Wk 1-2: 0.5mg (3 units). Wk 3-4: 1mg (6 units). Wk 5-6: 2.5mg (15 units). Wk 7+: 5mg (30 units).',
+    _backfill: ['2026-03-19', '2026-03-20', '2026-03-21', '2026-03-22'],
+  },
+  {
+    name: 'NAD+ Injectable',
+    category: 'peptide',
+    description: 'Direct NAD+ replenishment. Bypasses gut for immediate cellular impact. Supports mitochondria, liver repair, and neurotransmitter production.',
+    dose: '16.7',
+    unit: 'mg',
+    frequency: 'daily',
+    days: [],
+    time: '08:00',
+    vialStrength: '500',
+    bacWater: '3',
+    startDate: '2026-03-23',
+    notes: 'Daily micro-dose: 10 units = 16.7mg. Morning only, never at night. 500mg vial lasts ~30 days. Inject slowly over 30 seconds.',
+    _backfill: [],
+  },
+]
+
+export function migrateV2(items, logs) {
+  if (parseInt(localStorage.getItem(MIGRATION_KEY) || '0') >= 2) return null
+
+  const names = new Set(items.map(i => i.name))
+  const newItems = [...items]
+  const newLogs = { ...logs }
+
+  for (const entry of V2_INJECTABLES) {
+    if (names.has(entry.name)) continue
+    const { _backfill, ...itemData } = entry
+    const id = createId()
+    newItems.push({ ...itemData, id })
+    if (_backfill) {
+      for (const date of _backfill) {
+        newLogs[`${id}:${date}`] = { time: new Date(`${date}T08:00:00`).toISOString() }
+      }
+    }
+  }
+
+  localStorage.setItem(MIGRATION_KEY, '2')
+  return { items: newItems, logs: newLogs }
 }
