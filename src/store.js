@@ -298,3 +298,60 @@ export function migrateV2(items, logs) {
   localStorage.setItem(MIGRATION_KEY, '2')
   return { items: newItems, logs: newLogs }
 }
+
+// --- Migration V3: rebuild historical logs for original 4 peptides (March 10-22) ---
+
+function dateRange(startStr, endStr) {
+  const dates = []
+  const s = parseDate(startStr)
+  const e = parseDate(endStr)
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+    dates.push(formatDate(new Date(d)))
+  }
+  return dates
+}
+
+export function migrateV3(items, logs) {
+  if (parseInt(localStorage.getItem(MIGRATION_KEY) || '0') >= 3) return null
+
+  const newItems = items.map(i => ({ ...i }))
+  const newLogs = { ...logs }
+
+  const allDaysMar10to22 = dateRange('2026-03-10', '2026-03-22')
+  // TB-500 is Sun(0) & Wed(3): Mar 12(Wed), 16(Sun), 19(Wed)
+  const tb500Days = ['2026-03-12', '2026-03-16', '2026-03-19']
+
+  const historyMap = {
+    'BPC-157':  { startDate: '2026-03-10', dates: allDaysMar10to22 },
+    'TB-500':   { startDate: '2026-03-10', dates: tb500Days },
+    'GHK-Cu':   { startDate: '2026-03-10', dates: allDaysMar10to22 },
+    'NA Semax': { startDate: '2026-03-10', dates: allDaysMar10to22 },
+  }
+
+  for (let i = 0; i < newItems.length; i++) {
+    const hist = historyMap[newItems[i].name]
+    if (!hist) continue
+    newItems[i] = { ...newItems[i], startDate: hist.startDate }
+    for (const date of hist.dates) {
+      const key = `${newItems[i].id}:${date}`
+      if (!newLogs[key]) {
+        newLogs[key] = { time: new Date(`${date}T08:00:00`).toISOString() }
+      }
+    }
+  }
+
+  localStorage.setItem(MIGRATION_KEY, '3')
+  return { items: newItems, logs: newLogs }
+}
+
+// --- Export / Import for backup ---
+
+export function exportData(items, logs) {
+  return JSON.stringify({ items, logs, exportedAt: new Date().toISOString() }, null, 2)
+}
+
+export function importData(jsonString) {
+  const data = JSON.parse(jsonString)
+  if (!data.items || !data.logs) throw new Error('Invalid backup file')
+  return { items: data.items, logs: data.logs }
+}

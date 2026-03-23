@@ -1,6 +1,6 @@
 import { CATEGORIES, FREQUENCIES, calcSyringe } from '../store'
 
-function Items({ items, onEdit, onAdd }) {
+function Items({ items, onEdit, onAdd, onExport, onImport }) {
   const catColor = (cat) => CATEGORIES.find(c => c.value === cat)?.color || 'var(--text2)'
   const freqLabel = (f) => FREQUENCIES.find(fr => fr.value === f)?.label || f
 
@@ -70,6 +70,15 @@ function Items({ items, onEdit, onAdd }) {
           })}
         </div>
       )}
+
+      <div style={{ display: 'flex', gap: 10, padding: '8px 0 16px' }}>
+        <button className="btn btn-ghost" style={{ flex: 1, fontSize: 13 }} onClick={onExport}>
+          Backup Data
+        </button>
+        <button className="btn btn-ghost" style={{ flex: 1, fontSize: 13 }} onClick={onImport}>
+          Restore Backup
+        </button>
+      </div>
 
       <style>{`
         .item-card {

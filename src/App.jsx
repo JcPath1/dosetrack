@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { loadItems, saveItems, loadLogs, saveLogs, formatDate, seedStarterItems, migrateV2 } from './store'
+import { loadItems, saveItems, loadLogs, saveLogs, formatDate, seedStarterItems, migrateV2, migrateV3, exportData, importData } from './store'
 import PinLock, { hasPin, isUnlocked, lockApp } from './views/PinLock'
 import Today from './views/Today'
 import Calendar from './views/Calendar'
@@ -27,14 +27,51 @@ function App() {
   })
   const [logs, setLogs] = useState(loadLogs)
 
-  // Run one-time migration to add new injectables + backfill historical logs
+  // Run one-time migrations
   useEffect(() => {
-    const result = migrateV2(items, logs)
-    if (result) {
-      setItems(result.items)
-      setLogs(result.logs)
+    let current = { items, logs }
+    const v2 = migrateV2(current.items, current.logs)
+    if (v2) current = v2
+    const v3 = migrateV3(current.items, current.logs)
+    if (v3) current = v3
+    if (v2 || v3) {
+      setItems(current.items)
+      setLogs(current.logs)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleExport = useCallback(() => {
+    const json = exportData(items, logs)
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `dosetrack-backup-${formatDate(new Date())}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [items, logs])
+
+  const handleImport = useCallback(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        try {
+          const data = importData(ev.target.result)
+          setItems(data.items)
+          setLogs(data.logs)
+        } catch {
+          alert('Invalid backup file')
+        }
+      }
+      reader.readAsText(file)
+    }
+    input.click()
+  }, [])
   const [editingItem, setEditingItem] = useState(null)
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()))
   const [calcItem, setCalcItem] = useState(null)
@@ -128,6 +165,8 @@ function App() {
             items={items}
             onEdit={setEditingItem}
             onAdd={() => setEditingItem({})}
+            onExport={handleExport}
+            onImport={handleImport}
           />
         )}
       </div>
